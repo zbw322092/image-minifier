@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import { useExpressServer } from 'routing-controllers';
 import chalk from 'chalk';
+import compression from 'compression';
+import { join } from 'path';
 
 const ENV = process.env;
 
@@ -8,8 +10,12 @@ export default class App {
 
   private createApp (): Application {
     const app = express();
+
+    const publicPath = join(process.cwd(), './public');
+    app.use('/', compression(), express.static(publicPath));
+
     useExpressServer(app, {
-      routePrefix: '',
+      routePrefix: '/api',
       controllers: [__dirname + "/controllers/*.ts"]
     });
     return app;
