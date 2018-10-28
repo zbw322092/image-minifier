@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import { useExpressServer } from 'routing-controllers';
+import favicon from 'serve-favicon';
 import chalk from 'chalk';
 import compression from 'compression';
 import { join } from 'path';
@@ -12,7 +13,10 @@ export default class App {
     const app = express();
 
     const publicPath = join(process.cwd(), './public');
+    const zipPath = join(process.cwd(), './upload/zip');
+    app.use(favicon(join(__dirname, '../favicon.ico')));
     app.use('/', compression(), express.static(publicPath));
+    app.use('/zip-download', compression(), express.static(zipPath));
 
     useExpressServer(app, {
       routePrefix: '/api',

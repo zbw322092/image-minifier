@@ -34,8 +34,21 @@ p {
   margin-bottom: 10px;
 }
 
+.my-form p:first-child {
+  font-size: 24px;
+}
+
+.my-form p:nth-child(2) {
+  color: #666666;
+}
+
 #gallery {
   margin-top: 10px;
+}
+
+#gallery .file-container {
+  display: inline-block;
+  margin-bottom: 80px;
 }
 
 #gallery img {
@@ -43,6 +56,19 @@ p {
   margin-bottom: 10px;
   margin-right: 10px;
   vertical-align: middle;
+}
+
+#gallery button {
+  display: block;
+  width: 80px;
+  height: 40px;
+  border: none;
+  background: #FFDB84;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .button {

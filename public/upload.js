@@ -19,7 +19,7 @@ let dropArea = document.getElementById("drop-area");
 // Handle dropped files
 dropArea.addEventListener('drop', handleDrop, false);
 
-function preventDefaults (e) {
+function preventDefaults(e) {
   e.preventDefault();
   e.stopPropagation();
 }
@@ -42,60 +42,72 @@ function handleDrop(e) {
 let uploadProgress = [];
 let progressBar = document.getElementById('progress-bar');
 
-function initializeProgress(numFiles) {
-  progressBar.value = 0;
-  uploadProgress = [];
-
-  for(let i = numFiles; i > 0; i--) {
-    uploadProgress.push(0);
-  }
+function updateProgress(percent) {
+  progressBar.value = percent;
 }
 
-function updateProgress(fileNumber, percent) {
-  uploadProgress[fileNumber] = percent;
-  let total = uploadProgress.reduce((tot, curr) => tot + curr, 0) / uploadProgress.length;
-  console.debug('update', fileNumber, percent, total);
-  progressBar.value = total;
+function generateRandomId() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 function handleFiles(files) {
   files = [...files];
-  initializeProgress(files.length);
-  files.forEach(uploadFile);
   files.forEach(previewFile);
+  uploadFiles(files);
 }
+
 
 function previewFile(file) {
   let reader = new FileReader();
   reader.readAsDataURL(file);
-  reader.onloadend = function() {
-    let img = document.createElement('img')
-    img.src = reader.result
-    document.getElementById('gallery').appendChild(img)
+  reader.onloadend = function () {
+    const containerDiv = document.createElement('div');
+    containerDiv.classList.add('file-container')
+    let img = document.createElement('img');
+    img.src = reader.result;
+    containerDiv.appendChild(img);
+    document.getElementById('gallery').appendChild(containerDiv);
   }
 }
 
-function uploadFile(file, i) {
-  var url = 'http://localhost:9988/api/upload'
+function uploadFiles(files) {
+  var url = window.origin + '/api/upload';
   var xhr = new XMLHttpRequest();
   var formData = new FormData();
   xhr.open('POST', url, true);
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
   // Update progress (can be used to show progress indicator)
-  xhr.upload.addEventListener("progress", function(e) {
-    updateProgress(i, (e.loaded * 100.0 / e.total) || 100)
+  xhr.upload.addEventListener("progress", function (e) {
+    updateProgress((e.loaded * 100.0 / e.total) || 100);
   })
 
-  xhr.addEventListener('readystatechange', function(e) {
+  xhr.addEventListener('readystatechange', function (e) {
     if (xhr.readyState == 4 && xhr.status == 200) {
-      updateProgress(i, 100); // <- Add this
+      // updateProgress(100); // <- Add this
+      console.log('xhr.response: ', xhr.response);
+      const response = JSON.parse(xhr.response) || {};
+      const zipFilename = response.filename || '';
+      const zipUrl = window.origin + '/zip-download/' + zipFilename;
+      console.log(zipUrl);
+      const aTag = document.createElement("a");
+      // safari doesn't support this yet
+      if (typeof aTag.download === 'undefined') {
+        window.location = zipUrl;
+      } else {
+        aTag.href = zipUrl;
+        aTag.download = `compressed_images_${Date.now()}`;
+        document.body.appendChild(aTag);
+        aTag.click();
+      }
     }
     else if (xhr.readyState == 4 && xhr.status != 200) {
       // Error. Inform the user
     }
   })
 
-  formData.append('file', file);
+  files.forEach((file, index) => {
+    formData.append(`file${index}`, file);
+  })
   xhr.send(formData);
 }
