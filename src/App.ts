@@ -15,12 +15,12 @@ export default class App {
     const publicPath = join(process.cwd(), './public');
     const zipPath = join(process.cwd(), './upload/zip');
     app.use(favicon(join(__dirname, '../favicon.ico')));
-    app.use('/', compression(), express.static(publicPath));
+    app.use('/image-compress', compression(), express.static(publicPath));
     app.use('/zip-download', compression(), express.static(zipPath));
 
     useExpressServer(app, {
       routePrefix: '/api',
-      controllers: [__dirname + "/controllers/*.ts"]
+      controllers: [__dirname + "/controllers/*.{js,ts}"]
     });
     return app;
   }

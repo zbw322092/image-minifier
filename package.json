@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "Bowen Zhong",
   "license": "MIT",
+  "scripts": {
+    "start": "node ./index.js"
+  },
   "dependencies": {
     "archiver": "^3.0.0",
     "body-parser": "^1.18.3",
